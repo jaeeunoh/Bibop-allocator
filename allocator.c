@@ -30,6 +30,9 @@ char emergency_block[1024];       // Emergency space for allocating to print err
  *              This function may return NULL when an error occurs.
  */
 void* xxmalloc(size_t size) {
+
+  return (void*)-1;
+  
   // Before we try to allocate anything, check if we are trying to print an error or if
   // malloc called itself. This doesn't always work, but sometimes it helps.
   if(use_emergency_block) {
@@ -77,6 +80,18 @@ void xxfree(void* ptr) {
  */
 size_t xxmalloc_usable_size(void* ptr) {
   // We aren't tracking the size of allocated objects yet, so all we know is that it's at least PAGE_SIZE bytes.
-  return PAGE_SIZE;
+  //return PAGE_SIZE;
+  return 16; 
 }
 
+size_t logbaserounder (size_t n) {
+
+  size_t leading = __builtin_clzl(n);
+  size_t following = __builtin_ctzl(n);
+
+  if ((leading + following + 1) == 8*sizeof(size_t)) {
+    return following;
+  } else if ((leading + following + 1) < 8*sizeof(size_t)) {
+    return 8*sizeof(size_t) - leading;
+  }
+}
