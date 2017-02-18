@@ -26,7 +26,7 @@ void* allocatePage (size_t size);
 
 
 typedef struct freelist_node {
-  struct freelist_t* next;
+  struct freelist_node* next;
 } freelist_t; 
 
 typedef struct header {
@@ -70,15 +70,18 @@ void* xxmalloc(size_t size) {
   in_malloc = true;
   
   // Round the size up to the next multiple of the page size
-  size = ROUND_UP(size, PAGE_SIZE);
+  //size = ROUND_UP(size, PAGE_SIZE);
 
    
   if (headerPointerList[headerlistIndex] == NULL) {
-    header_t* header = allocatePage(size);
-    freelist_t* freeSpace = header->freelist;
-    header->freelist = header->freelist->next; // freelist_t header_t
+    header_t* header = (header_t*) allocatePage(size);
+
+    void* freePointer = header->freelist;
+    header->freelist = header->freelist->next; 
+   
     headerPointerList[headerlistIndex] = header;
-    return freeSpace;
+
+    return freePointer;
 
   } else {
     header_t* headerPointer = headerPointerList[headerlistIndex];
@@ -116,24 +119,22 @@ void* allocatePage (size_t size) {
   
   // Request memory from the operating system in page-sized chunks
   void* p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-  header_t* header = p;
+  header_t* header = (header_t*) p;
   intptr_t* base = (intptr_t*) p;
 
-  int headerSize = ROUND_UP(sizeof(header), exponent(logbase));
+  int headerSize = ROUND_UP(sizeof(header_t), exponent(logbase));
 
   // Initializing header 
   header->size = size;
   header->next = NULL;
   header->freelist = NULL; 
 
-  for (int i = headerSize; i < 4048 - exponent(logbase); i += exponent(logbase)) {
-    freelist_t* temp = header->freelist;
-    freelist_t* cur = (freelist_t*) base[i];
-    cur->next = temp;
-    header->freelist = cur; 
+  for (size_t offset = headerSize; offset < PAGE_SIZE; offset += exponent(logbase)) {
+    freelist_t* obj = (freelist_t*) (base + offset);
+    obj->next = header->freelist;
+    header->freelist = obj; 
   }
 
-  
   // Check for errors
   if(p == MAP_FAILED) {
     use_emergency_block = true;
@@ -151,16 +152,16 @@ void* allocatePage (size_t size) {
  * \param ptr   A pointer somewhere inside the object that is being freed
  */
 void xxfree(void* ptr) {
-  size_t pageStart = roundDown((size_t) &ptr, PAGE_SIZE);
+  size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
   void* temp = ptr;
 
-  size_t intTmp = (size_t) &temp;
+  size_t intTmp = (size_t) temp;
   temp -= (intTmp - pageStart);
   header_t* headertemp = (header_t*) temp;
   size_t objectSize = headertemp->size;
   
-  size_t objectStart = roundDown ((size_t) &ptr, objectSize);
-  size_t intPtr = (size_t) &ptr;
+  size_t objectStart = roundDown ((size_t) ptr, objectSize);
+  size_t intPtr = (size_t) ptr;
   ptr -= (intPtr - objectStart);
   freelist_t* freeptr = (freelist_t*) ptr;
 
