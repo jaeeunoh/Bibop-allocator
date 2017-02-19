@@ -42,7 +42,7 @@ bool use_emergency_block = false; // If set, use the emergency space for allocat
 char emergency_block[1024];       // Emergency space for allocating to print errors
 
 // List of header pointers 
-void* headerPointerList[8];
+header_t* headerPointerList[8];
 
 /**
  * Allocate space on the heap.
@@ -58,6 +58,7 @@ void* xxmalloc(size_t size) {
   
   // Before we try to allocate anything, check if we are trying to print an error or if
   // malloc called itself. This doesn't always work, but sometimes it helps.
+  /*
   if(use_emergency_block) {
     return emergency_block;
   } else if(in_malloc) {
@@ -65,12 +66,17 @@ void* xxmalloc(size_t size) {
     puts("ERROR! Nested call to malloc. Aborting.\n");
     exit(2);
   }
+
   
   // If we call malloc again while this is true, bad things will happen.
   in_malloc = true;
+
+  */
   
   // Round the size up to the next multiple of the page size
   //size = ROUND_UP(size, PAGE_SIZE);
+
+
 
    
   if (headerPointerList[headerlistIndex] == NULL) {
@@ -109,7 +115,7 @@ void* xxmalloc(size_t size) {
   }
   
   // Done with malloc, so clear this flag
-  in_malloc = false;
+ // in_malloc = false;
 }
 
 
@@ -118,7 +124,7 @@ void* allocatePage (size_t size) {
   int headerlistIndex = logbaserounder (size) - 4; 
   
   // Request memory from the operating system in page-sized chunks
-  void* p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+  void* p = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
   header_t* header = (header_t*) p;
   intptr_t* base = (intptr_t*) p;
 
