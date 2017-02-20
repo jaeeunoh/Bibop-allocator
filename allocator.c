@@ -73,12 +73,8 @@ header_t* headerPointerList[8];
 
   */
   
-  // Round the size up to the next multiple of the page size
-  //size = ROUND_UP(size, PAGE_SIZE);
+  size = exponent(logbase); 
 
-
-
-  
   if (headerPointerList[headerlistIndex] == NULL) {
     header_t* header = (header_t*) allocatePage(size);
 
@@ -120,13 +116,10 @@ header_t* headerPointerList[8];
 
 
 void* allocatePage (size_t size) {
-  int logbase = logbaserounder (size); 
-  int headerlistIndex = logbaserounder (size) - 4; 
-  
   // Request memory from the operating system in page-sized chunks
   void* p = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
   intptr_t base = (intptr_t) p;
-  intptr_t offset = ROUND_UP(sizeof(header_t), exponent(logbase));
+  intptr_t offset = ROUND_UP(sizeof(header_t), size);
 
   // Initializing header 
   header_t* header = (header_t*) p;
@@ -134,9 +127,9 @@ void* allocatePage (size_t size) {
   header->next = NULL;
   header->freelist = NULL; 
 
-  for (; offset < PAGE_SIZE; offset += exponent(logbase)) {
+  for (; offset < PAGE_SIZE; offset += size) {
     char buff[256];
-    size_t expo = exponent(logbase);
+    size_t expo = size;
     snprintf(buff, 256, "expo %i and logbase is %i\n", expo, logbase);
     fputs(buff, stderr);
 
@@ -184,17 +177,12 @@ void* allocatePage (size_t size) {
  */
  void xxfree(void* ptr) {
   size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
-  void* temp = ptr;
 
-  size_t intTmp = (size_t) temp;
-  temp -= (intTmp - pageStart);
-  header_t* headertemp = (header_t*) temp;
+  header_t* headertemp = (header_t*) pageStart;
   size_t objectSize = headertemp->size;
   
   size_t objectStart = roundDown ((size_t) ptr, objectSize);
-  size_t intPtr = (size_t) ptr;
-  ptr -= (intPtr - objectStart);
-  freelist_t* freeptr = (freelist_t*) ptr;
+  freelist_t* freeptr = (freelist_t*) objectStart;
 
   freeptr->next = headertemp->freelist;
   headertemp->freelist = freeptr; 
@@ -231,5 +219,5 @@ size_t exponent (size_t n) {
 
 size_t roundDown (size_t x, size_t y) {
   size_t temp = x % y;
-  return (temp - 1)*x;
+  return x - temp; 
 } 
