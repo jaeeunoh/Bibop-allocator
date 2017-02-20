@@ -135,10 +135,35 @@ void* allocatePage (size_t size) {
   header->next = NULL;
   header->freelist = NULL; 
 
-  for (size_t offset = headerSize; offset < PAGE_SIZE; offset += exponent(logbase)) {
+  for (size_t offset = sizeof(header_t); offset < PAGE_SIZE; offset += exponent(logbase)) {
+    char buff[256];
+    size_t expo = exponent(logbase);
+    snprintf(buff, 256, "expo %i and logbase is %i\n", expo, logbase);
+      fputs(buff, stderr);
+
+        puts("Start of loop __________________________"); 
+
     freelist_t* obj = (freelist_t*) (base + offset);
+    obj->next = NULL; 
+    char buf[256];
+    snprintf(buf, 256, "obj is %p\theader is %p\n", obj, header);
+    fputs(buf, stderr);
+    snprintf(buf, 256, "obj->next is %p\thead->next is %p\n", obj->next, header->next);
+    fputs(buf, stderr);
+    snprintf(buf, 256, "head->freelist is %p\n", header->freelist);
+    fputs(buf, stderr);
+
+    puts("this is where obj->next happens **********************************"); 
     obj->next = header->freelist;
-    header->freelist = obj; 
+    snprintf(buf, 256, "obj->next is %p\thead->next is %p\n", obj->next, header->next);
+    fputs(buf, stderr);
+    header->freelist = obj;
+
+        snprintf(buf, 256, "head->free should be object  %p\n", header->freelist);
+    fputs(buf, stderr);
+
+    snprintf(buf, 256, "head->free->next is %p\n", header->freelist->next);
+    fputs(buf, stderr);
   }
 
   // Check for errors
