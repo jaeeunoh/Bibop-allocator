@@ -50,10 +50,10 @@ header_t* headerPointerList[8];
  * \returns     A pointer to the beginning of the allocated space.
  *              This function may return NULL when an error occurs.
  */
-void* xxmalloc(size_t size) {
+ void* xxmalloc(size_t size) {
   int logbase = logbaserounder (size); 
   int headerlistIndex = logbaserounder (size) - 4; 
-    
+  
   //return (void*)-1;
   
   // Before we try to allocate anything, check if we are trying to print an error or if
@@ -78,13 +78,13 @@ void* xxmalloc(size_t size) {
 
 
 
-   
+  
   if (headerPointerList[headerlistIndex] == NULL) {
     header_t* header = (header_t*) allocatePage(size);
 
     void* freePointer = header->freelist;
     header->freelist = header->freelist->next; 
-   
+    
     headerPointerList[headerlistIndex] = header;
 
     return freePointer;
@@ -101,7 +101,7 @@ void* xxmalloc(size_t size) {
           freelist_t* freeSpace = header->freelist;
           header->freelist = header->freelist->next;
           return freeSpace;
-            
+          
         } else {
           pagePointer = pagePointer->next;
         }
@@ -111,7 +111,7 @@ void* xxmalloc(size_t size) {
         return freeSpace;
       }
     }
-      
+    
   }
   
   // Done with malloc, so clear this flag
@@ -125,26 +125,26 @@ void* allocatePage (size_t size) {
   
   // Request memory from the operating system in page-sized chunks
   void* p = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-  header_t* header = (header_t*) p;
-  intptr_t* base = (intptr_t*) p;
-
-  int headerSize = ROUND_UP(sizeof(header_t), exponent(logbase));
+  intptr_t base = (intptr_t) p;
+  intptr_t offset = ROUND_UP(sizeof(header_t), exponent(logbase));
 
   // Initializing header 
+  header_t* header = (header_t*) p;
   header->size = size;
   header->next = NULL;
   header->freelist = NULL; 
 
-  for (size_t offset = sizeof(header_t); offset < PAGE_SIZE; offset += exponent(logbase)) {
+  for (; offset < PAGE_SIZE; offset += exponent(logbase)) {
     char buff[256];
     size_t expo = exponent(logbase);
     snprintf(buff, 256, "expo %i and logbase is %i\n", expo, logbase);
-      fputs(buff, stderr);
+    fputs(buff, stderr);
 
-        puts("Start of loop __________________________"); 
+    puts("Start of loop __________________________"); 
 
     freelist_t* obj = (freelist_t*) (base + offset);
     obj->next = NULL; 
+    
     char buf[256];
     snprintf(buf, 256, "obj is %p\theader is %p\n", obj, header);
     fputs(buf, stderr);
@@ -159,7 +159,7 @@ void* allocatePage (size_t size) {
     fputs(buf, stderr);
     header->freelist = obj;
 
-        snprintf(buf, 256, "head->free should be object  %p\n", header->freelist);
+    snprintf(buf, 256, "head->free should be object  %p\n", header->freelist);
     fputs(buf, stderr);
 
     snprintf(buf, 256, "head->free->next is %p\n", header->freelist->next);
@@ -182,7 +182,7 @@ void* allocatePage (size_t size) {
  * Free space occupied by a heap object.
  * \param ptr   A pointer somewhere inside the object that is being freed
  */
-void xxfree(void* ptr) {
+ void xxfree(void* ptr) {
   size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
   void* temp = ptr;
 
@@ -207,7 +207,7 @@ void xxfree(void* ptr) {
  * \param ptr   A pointer somewhere inside the allocated object
  * \returns     The number of bytes available for use in this object
  */
-size_t xxmalloc_usable_size(void* ptr) {
+ size_t xxmalloc_usable_size(void* ptr) {
   // We aren't tracking the size of allocated objects yet, so all we know is that it's at least PAGE_SIZE bytes.
   //return PAGE_SIZE;
   return 16; 
