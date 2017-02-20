@@ -82,29 +82,28 @@ header_t* headerPointerList[8];
     header->freelist = header->freelist->next; 
     
     headerPointerList[headerlistIndex] = header;
-
     return freePointer;
 
   } else {
     header_t* headerPointer = headerPointerList[headerlistIndex];
-    header_t* pagePointer = headerPointer; 
-    while (pagePointer != NULL) {
-      if (pagePointer->freelist == NULL) {
-        if (pagePointer->next == NULL) {
-          header_t* header = allocatePage(size);
-          pagePointer->next = header;
+    header_t* headerCopy = headerPointer; 
+    while (headerCopy != NULL) {
+      if (headerCopy->freelist == NULL) {
+        if (headerCopy->next == NULL) {
+          header_t* new_header_block = (header_t*) allocatePage(size);
+          headerPointer->next = new_header_block;
           
-          freelist_t* freeSpace = header->freelist;
-          header->freelist = header->freelist->next;
-          return freeSpace;
+          freelist_t* freePointer = new_header_block->freelist;
+          new_header_block->freelist = new_header_block->freelist->next;
+          return freePointer;
           
         } else {
-          pagePointer = pagePointer->next;
+          headerCopy = headerCopy->next;
         }
       } else {
-        freelist_t* freeSpace = pagePointer->freelist;
-        pagePointer->freelist = pagePointer->freelist->next;
-        return freeSpace;
+        freelist_t* freePointer = headerCopy->freelist;
+        headerCopy->freelist = headerCopy->freelist->next;
+        return freePointer;
       }
     }
     
@@ -171,6 +170,8 @@ void* allocatePage (size_t size) {
  * \param ptr   A pointer somewhere inside the object that is being freed
  */
  void xxfree(void* ptr) {
+
+  /*
   size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
 
   header_t* headertemp = (header_t*) pageStart;
@@ -181,6 +182,8 @@ void* allocatePage (size_t size) {
 
   freeptr->next = headertemp->freelist;
   headertemp->freelist = freeptr; 
+  */ 
+  return;
 }
 
 
