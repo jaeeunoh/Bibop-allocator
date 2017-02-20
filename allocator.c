@@ -54,25 +54,6 @@ header_t* headerPointerList[8];
   int logbase = logbaserounder (size); 
   int headerlistIndex = logbaserounder (size) - 4; 
   
-  //return (void*)-1;
-  
-  // Before we try to allocate anything, check if we are trying to print an error or if
-  // malloc called itself. This doesn't always work, but sometimes it helps.
-  /*
-  if(use_emergency_block) {
-    return emergency_block;
-  } else if(in_malloc) {
-    use_emergency_block = true;
-    puts("ERROR! Nested call to malloc. Aborting.\n");
-    exit(2);
-  }
-
-  
-  // If we call malloc again while this is true, bad things will happen.
-  in_malloc = true;
-
-  */
-  
   size = exponent(logbase); 
 
   if (headerPointerList[headerlistIndex] == NULL) {
@@ -108,9 +89,6 @@ header_t* headerPointerList[8];
     }
     
   }
-  
-  // Done with malloc, so clear this flag
- // in_malloc = false;
 }
 
 
@@ -127,37 +105,11 @@ void* allocatePage (size_t size) {
   header->freelist = NULL; 
 
   for (; offset < PAGE_SIZE; offset += size) {
-    //puts("Start of loop __________________________"); 
-
     freelist_t* obj = (freelist_t*) (base + offset);
-    obj->next = NULL; 
-    
-    /*
-    char buf[256];
-    snprintf(buf, 256, "obj is %p\theader is %p\n", obj, header);
-    fputs(buf, stderr);
-    snprintf(buf, 256, "obj->next is %p\thead->next is %p\n", obj->next, header->next);
-    fputs(buf, stderr);
-    snprintf(buf, 256, "head->freelist is %p\n", header->freelist);
-    fputs(buf, stderr);
-
-*/
-    //puts("this is where obj->next happens **********************************"); 
     obj->next = header->freelist;
-    
-    //snprintf(buf, 256, "obj->next is %p\thead->next is %p\n", obj->next, header->next);
-    //fputs(buf, stderr);
     header->freelist = obj;
-
-    //snprintf(buf, 256, "head->free should be object  %p\n", header->freelist);
-    //fputs(buf, stderr);
-
-    //snprintf(buf, 256, "head->free->next is %p\n", header->freelist->next);
-    //fputs(buf, stderr);
   }
   puts("this is end");
-
-
 
 
   // Check for errors
@@ -192,7 +144,6 @@ void* allocatePage (size_t size) {
   */ 
   return;
 }
-
 
 
 /**
