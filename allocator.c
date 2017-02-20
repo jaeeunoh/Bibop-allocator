@@ -127,11 +127,12 @@ void* allocatePage (size_t size) {
   header->freelist = NULL; 
 
   for (; offset < PAGE_SIZE; offset += size) {
-    puts("Start of loop __________________________"); 
+    //puts("Start of loop __________________________"); 
 
     freelist_t* obj = (freelist_t*) (base + offset);
     obj->next = NULL; 
     
+    /*
     char buf[256];
     snprintf(buf, 256, "obj is %p\theader is %p\n", obj, header);
     fputs(buf, stderr);
@@ -140,18 +141,24 @@ void* allocatePage (size_t size) {
     snprintf(buf, 256, "head->freelist is %p\n", header->freelist);
     fputs(buf, stderr);
 
-    puts("this is where obj->next happens **********************************"); 
+*/
+    //puts("this is where obj->next happens **********************************"); 
     obj->next = header->freelist;
-    snprintf(buf, 256, "obj->next is %p\thead->next is %p\n", obj->next, header->next);
-    fputs(buf, stderr);
+    
+    //snprintf(buf, 256, "obj->next is %p\thead->next is %p\n", obj->next, header->next);
+    //fputs(buf, stderr);
     header->freelist = obj;
 
-    snprintf(buf, 256, "head->free should be object  %p\n", header->freelist);
-    fputs(buf, stderr);
+    //snprintf(buf, 256, "head->free should be object  %p\n", header->freelist);
+    //fputs(buf, stderr);
 
-    snprintf(buf, 256, "head->free->next is %p\n", header->freelist->next);
-    fputs(buf, stderr);
+    //snprintf(buf, 256, "head->free->next is %p\n", header->freelist->next);
+    //fputs(buf, stderr);
   }
+  puts("this is end");
+
+
+
 
   // Check for errors
   if(p == MAP_FAILED) {
