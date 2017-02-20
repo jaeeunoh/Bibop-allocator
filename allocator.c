@@ -139,19 +139,19 @@ void* allocatePage (size_t size) {
 
   size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
   header_t* headertemp = (header_t*) pageStart;
-  if (headertemp->magic_number != 1048) {
-    return;
-  }
-
-  size_t objectSize = headertemp->size;
   
-  size_t objectStart = roundDown ((size_t) ptr, objectSize);
-  freelist_t* freeptr = (freelist_t*) objectStart;
+  if (headertemp->magic_number == 1048) {
+   size_t objectSize = headertemp->size;
 
-  freeptr->next = headertemp->freelist;
-  headertemp->freelist = freeptr; 
-  
-  return;
+   size_t objectStart = roundDown ((size_t) ptr, objectSize);
+   freelist_t* freeptr = (freelist_t*) objectStart;
+
+   freeptr->next = headertemp->freelist;
+   headertemp->freelist = freeptr; 
+ }
+
+
+ return;
 }
 
 
