@@ -38,9 +38,9 @@ typedef struct header {
 
 
 // USE ONLY IN CASE OF EMERGENCY
-//bool in_malloc = false;           // Set whenever we are inside malloc.
-//bool use_emergency_block = false; // If set, use the emergency space for allocations
-//char emergency_block[1024];       // Emergency space for allocating to print errors
+bool in_malloc = false;           // Set whenever we are inside malloc.
+bool use_emergency_block = false; // If set, use the emergency space for allocations
+char emergency_block[1024];       // Emergency space for allocating to print errors
 
 // List of header pointers 
 header_t* headerPointerList[8];
