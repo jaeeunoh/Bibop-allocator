@@ -160,7 +160,7 @@ void* allocatePage (size_t size) {
  * \param ptr   A pointer somewhere inside the allocated object
  * \returns     The number of bytes available for use in this object
  */
- size_t xxmalloc_usable_size(void* ptr) {
+size_t xxmalloc_usable_size(void* ptr) {
   // We aren't tracking the size of allocated objects yet, so all we know is that it's at least PAGE_SIZE bytes.
   //return PAGE_SIZE;
   return 16; 
