@@ -128,11 +128,6 @@ void* allocatePage (size_t size) {
   header->freelist = NULL; 
 
   for (; offset < PAGE_SIZE; offset += size) {
-    char buff[256];
-    size_t expo = size;
-    snprintf(buff, 256, "expo %i and logbase is %i\n", expo, logbase);
-    fputs(buff, stderr);
-
     puts("Start of loop __________________________"); 
 
     freelist_t* obj = (freelist_t*) (base + offset);
