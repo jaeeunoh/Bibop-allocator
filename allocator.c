@@ -166,7 +166,7 @@ void* allocatePage (size_t size) {
     pageStart = roundDown((size_t) ptr, PAGE_SIZE);
     headertemp = (header_t*) pageStart;
   }
-  munmap (headertemp, hedertemp->size); 
+  munmap (headertemp, headertemp->size); 
 }
 
 return;
