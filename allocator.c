@@ -120,8 +120,6 @@ void* allocatePage (size_t size) {
     obj->next = header->freelist;
     header->freelist = obj;
   }
-  puts("this is end");
-
 
   // Check for errors
   if(p == MAP_FAILED) {
@@ -141,7 +139,10 @@ void* allocatePage (size_t size) {
  */
  void xxfree(void* ptr) {
 
-/*
+  if(ptr == NULL) {
+    return;
+  }
+
   size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
   header_t* headertemp = (header_t*) pageStart;
   
@@ -154,8 +155,6 @@ void* allocatePage (size_t size) {
    freeptr->next = headertemp->freelist;
    headertemp->freelist = freeptr; 
  }
- */
-
 
  return;
 }
