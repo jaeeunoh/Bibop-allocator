@@ -55,6 +55,7 @@ header_t* headerPointerList[8];
   if (size > 2048) { 
     size = ROUND_UP(size, PAGE_SIZE);
     void* p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    return p; 
   }
 
   int logbase = logbaserounder (size); 
@@ -107,7 +108,7 @@ void* allocatePage (size_t size) {
   // Initializing header 
   header_t* header = (header_t*) p;
   header->size = size;
-  header->magic_number = 1048; 
+  header->magic_number = 0xD00FCA75; 
   header->next = NULL;
   header->freelist = NULL; 
 
@@ -137,6 +138,7 @@ void* allocatePage (size_t size) {
  */
  void xxfree(void* ptr) {
 
+/*
   size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
   header_t* headertemp = (header_t*) pageStart;
   
@@ -149,6 +151,7 @@ void* allocatePage (size_t size) {
    freeptr->next = headertemp->freelist;
    headertemp->freelist = freeptr; 
  }
+ */
 
 
  return;
@@ -163,7 +166,9 @@ void* allocatePage (size_t size) {
 size_t xxmalloc_usable_size(void* ptr) {
   // We aren't tracking the size of allocated objects yet, so all we know is that it's at least PAGE_SIZE bytes.
   //return PAGE_SIZE;
-  return 16; 
+  size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
+  header_t* headertemp = (header_t*) pageStart;
+  return headertemp->size; 
 }
 
 size_t logbaserounder (size_t n) {
