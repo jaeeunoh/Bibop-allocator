@@ -61,7 +61,7 @@ header_t* headerPointerList[8];
       // Initializing header 
     header_t* header = (header_t*) p;
     header->size = size;
-    header->magic_number = 0xF00DFACE; 
+    header->magic_number = 0xF00DFACE; // Magic number for large objects
     header->next = NULL;
     header->freelist = NULL; 
 
@@ -118,7 +118,7 @@ void* allocatePage (size_t size) {
   // Initializing header 
   header_t* header = (header_t*) p;
   header->size = size;
-  header->magic_number = 0xD00FCA75; 
+  header->magic_number = 0xD00FCA75; // Magic number for small objects 
   header->next = NULL;
   header->freelist = NULL; 
 
@@ -163,8 +163,8 @@ void* allocatePage (size_t size) {
    headertemp->freelist = freeptr; 
  } else {
   while (headertemp->magic_number != 0xF00DFACE) {
-    pageStart = roundDown((size_t) ptr, PAGE_SIZE);
-    headertemp = (header_t*) pageStart;
+    size_t pageDown = pageStart - PAGE_SIZE; 
+    headertemp = (header_t*) pageDown; 
   }
   munmap (headertemp, headertemp->size); 
 }
