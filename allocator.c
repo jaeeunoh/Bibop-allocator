@@ -56,7 +56,7 @@ header_t* headerPointerList[8];
     size = 16;
   }
   if (size > 2048) { 
-    size = ROUND_UP(size, PAGE_SIZE);
+    size = ROUND_UP(size + sizeof(header_t), PAGE_SIZE);
     void* p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
       // Initializing header 
     header_t* header = (header_t*) p;
@@ -65,7 +65,7 @@ header_t* headerPointerList[8];
     header->next = NULL;
     header->freelist = NULL; 
 
-    return p; 
+    return header + 1;
   }
 
   int logbase = logbaserounder (size); 
@@ -163,10 +163,10 @@ void* allocatePage (size_t size) {
    headertemp->freelist = freeptr; 
  } else {
   while (headertemp->magic_number != 0xF00DFACE) {
-    pageStart = pageStart - PAGE_SIZE; 
-    headertemp = (header_t*) pageStart; 
+    pageStart = pageStart - PAGE_SIZE;
+    headertemp = (header_t*) pageStart;
   }
-  munmap (headertemp, headertemp->size); 
+  munmap (headertemp, headertemp->size);
 }
 
 return;
