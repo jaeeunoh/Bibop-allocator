@@ -163,8 +163,8 @@ void* allocatePage (size_t size) {
    headertemp->freelist = freeptr; 
  } else {
   while (headertemp->magic_number != 0xF00DFACE) {
-    size_t pageDown = pageStart - PAGE_SIZE; 
-    headertemp = (header_t*) pageDown; 
+    pageStart = pageStart - PAGE_SIZE; 
+    headertemp = (header_t*) pageStart; 
   }
   munmap (headertemp, headertemp->size); 
 }
