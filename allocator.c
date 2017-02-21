@@ -52,6 +52,9 @@ header_t* headerPointerList[8];
  *              This function may return NULL when an error occurs.
  */
  void* xxmalloc(size_t size) {
+  if (size < 16) {
+    size = 16;
+  }
   if (size > 2048) { 
     size = ROUND_UP(size, PAGE_SIZE);
     void* p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
