@@ -184,6 +184,11 @@ return;
  size_t xxmalloc_usable_size(void* ptr) {
   // We aren't tracking the size of allocated objects yet, so all we know is that it's at least PAGE_SIZE bytes.
   //return PAGE_SIZE;
+
+  if (ptr == NULL) {
+    return 0; 
+  }
+  
   size_t pageStart = roundDown((size_t) ptr, PAGE_SIZE);
   header_t* headertemp = (header_t*) pageStart;
   return headertemp->size; 
